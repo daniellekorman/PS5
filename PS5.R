@@ -95,7 +95,6 @@ rep_pred <- predict(rep_model, newdata=test)
 # Question 3: function
 
 myfunction <- function(y, P, stat) {
-  
   e <- abs(P-y)
   a <- (e/y)*100
   RMSE <- function(e,y) {
@@ -114,11 +113,30 @@ myfunction <- function(y, P, stat) {
     median(a)
   }
   
-  if (stat="RMSE") {
-    apply(y,2,RMSE)
+  if (stat=="RMSE") {
+    return(RMSE(y),
+    apply(P, 1, FUN=RMSE))
+  }
+  if (stat=="MAD") {
+    return(MAD(y),
+    apply(P, 1, FUN=MAD))
+  }
+  if (stat=="RMSLE") {
+    return(RMSLE(y),
+           apply(P, 1, FUN=RMSLE))
+  }
+  if (stat=="MAPE") {
+    return(MAPE(y),
+           apply(P, 1, FUN=MAPE))
+  }
+  if (stat=="MEAPE") {
+    return(MEAPE(y),
+           apply(P, 1, FUN=MEAPE))
   }
 }
+myfunction(y, P, stat="RMSE")
 ?apply
+
 # y is vector of true observed outcomes
 # P is matrix of predictions
 # Create vector of observed outcomes for Obama Thermometer
@@ -129,3 +147,4 @@ colnames(P) = c("gender", "education", "republican")
 myarray <- array(c(y, P))
 str(myarray)
 ?array
+
