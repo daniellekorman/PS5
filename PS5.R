@@ -93,10 +93,20 @@ edu_pred <- predict(edu_model, newdata=test)
 rep_pred <- predict(rep_model, newdata=test)
 
 # Question 3: function
+# y is vector of true observed outcomes
+# P is matrix of predictions
+# Create vector of observed outcomes for Obama Thermometer
+y <- as.vector(test$Obama)
+# Create matrix of predictions
+P <- matrix(cbind(gen_pred, edu_pred, rep_pred), nrow=2957, ncol=3)
+colnames(P) = c("gender", "education", "republican")
 
 myfunction <- function(y, P, stat) {
+  # Find absolute error
   e <- abs(P-y)
+  # absolute percentage error
   a <- (e/y)*100
+  # Make functions for each statistic
   RMSE <- function(e,y) {
     sqrt(sum((e^2)/length(y)))
   }
@@ -112,10 +122,11 @@ myfunction <- function(y, P, stat) {
   MEAPE <- function(a) {
     median(a)
   }
-  
+  # If the user selects a statistic, it should be calculated using the
+  # functions from above
+  # tried to get it to return as matrix
   if (stat=="RMSE") {
-    return(RMSE(y),
-    apply(P, 1, FUN=RMSE))
+    return(matrix((apply(P, 1, FUN=RMSE)), nrow=3, ncol=1))
   }
   if (stat=="MAD") {
     return(MAD(y),
@@ -135,16 +146,7 @@ myfunction <- function(y, P, stat) {
   }
 }
 myfunction(y, P, stat="RMSE")
-?apply
+# This doesn't work, returns error that argumen y is missing with no default
+# Although I specified y as "1" to apply to rows?
 
-# y is vector of true observed outcomes
-# P is matrix of predictions
-# Create vector of observed outcomes for Obama Thermometer
-y <- as.vector(test$Obama)
-# Create matrix of predictions
-P <- matrix(cbind(gen_pred, edu_pred, rep_pred), nrow=2957, ncol=3)
-colnames(P) = c("gender", "education", "republican")
-myarray <- array(c(y, P))
-str(myarray)
-?array
 
