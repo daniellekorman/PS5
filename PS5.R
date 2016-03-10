@@ -36,10 +36,10 @@ anes$ft_dpc[anes$ft_dpc==-8] <- NA
 anes$ft_dpc[anes$ft_dpc==-2] <- NA
 
 # Make table of variables using for regression
-anes2 <- subset(anes, select=c("ft_dpc", "gender_respondent_x", "dem_edu", 
+anes3 <- subset(anes, select=c("ft_dpc", "gender_respondent_x", "dem_edu", 
                                "ft_rpc", "ft_gwb", "ft_rep"))
-colnames(anes2) <- c("Obama", "Gender", "Education", "Romney", "Bush", "Rep")
-
+colnames(anes3) <- c("Obama", "Gender", "Education", "Romney", "Bush", "Rep")
+anes2 <- na.omit(anes3)
 # Make all data that does not fit linearly NA
 table(anes2$Gender)
 anes2$Gender <- as.numeric(anes2$Gender)
@@ -98,26 +98,29 @@ rep_pred <- predict(rep_model, newdata=test)
 # Create vector of observed outcomes for Obama Thermometer
 y <- as.vector(test$Obama)
 # Create matrix of predictions
-P <- matrix(cbind(gen_pred, edu_pred, rep_pred), nrow=2957, ncol=3)
-colnames(P) = c("gender", "education", "republican")
 
 myfunction <- function(y, P, stat) {
+  y <- as.vector(test$Obama)
+  n <- length(y)
+  # Create matrix of predictions
+  P <- matrix(cbind(gen_pred, edu_pred, rep_pred), nrow=2957, ncol=3)
+  colnames(P) = c("gender", "education", "republican")
   # Find absolute error
   e <- abs(P-y)
   # absolute percentage error
-  a <- (e/y)*100
+  a <- (e/abs(y))*100
   # Make functions for each statistic
   RMSE <- function(e,y) {
-    sqrt(sum((e^2)/length(y)))
+    sqrt(sum((e^2)/n))
   }
   MAD <- function (e) {
     median(e)
   }
   RMSLE <- function (P, y) {
-    sqrt((sum(log(P + 1)-log(y + 1))^2)/length(y))
+    sqrt((sum(log(P + 1)-log(y + 1))^2)/n)
   }
   MAPE <- function(a, y) {
-    (sum(a)/length(y))
+    (sum(a)/n)
   }
   MEAPE <- function(a) {
     median(a)
@@ -126,7 +129,7 @@ myfunction <- function(y, P, stat) {
   # functions from above
   # tried to get it to return as matrix
   if (stat=="RMSE") {
-    return(matrix((apply(P, 1, FUN=RMSE)), nrow=3, ncol=1))
+    return(apply(P, 2, FUN=RMSE))
   }
   if (stat=="MAD") {
     return(MAD(y),
@@ -146,7 +149,7 @@ myfunction <- function(y, P, stat) {
   }
 }
 myfunction(y, P, stat="RMSE")
-# This doesn't work, returns error that argumen y is missing with no default
-# Although I specified y as "1" to apply to rows?
+
+
 
 
