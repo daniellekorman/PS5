@@ -80,14 +80,52 @@ summary(edu_model)
 
 # Third model: Obama thermometer on Republican opinions
 # Obama Thermometer regressed on opinions on Romney, George W Bush, and 
-# Republican Party
-table(train$ft_dvpc)
-# Has the same possible values as 
+# the Republican Party
+rep_model <- lm(Obama ~ Romney + Bush + Rep, train)
+summary(rep_model)
 
+# Question 2: Make predictions with test set
+# Gender
+gen_pred <- predict(gen_model, newdata=test)
+# Education
+edu_pred <- predict(edu_model, newdata=test)
+# Republican Thermometers
+rep_pred <- predict(rep_model, newdata=test)
 
+# Question 3: function
 
-# among women
-predict(gen_model, data.frame(gender_num=2))
-# among people with bachelors degrees
-predict(edu_model, data.frame(edu_num=13))
-
+myfunction <- function(y, P, stat) {
+  
+  e <- abs(P-y)
+  a <- (e/y)*100
+  RMSE <- function(e,y) {
+    sqrt(sum((e^2)/length(y)))
+  }
+  MAD <- function (e) {
+    median(e)
+  }
+  RMSLE <- function (P, y) {
+    sqrt((sum(log(P + 1)-log(y + 1))^2)/length(y))
+  }
+  MAPE <- function(a, y) {
+    (sum(a)/length(y))
+  }
+  MEAPE <- function(a) {
+    median(a)
+  }
+  
+  if (stat="RMSE") {
+    apply(y,2,RMSE)
+  }
+}
+?apply
+# y is vector of true observed outcomes
+# P is matrix of predictions
+# Create vector of observed outcomes for Obama Thermometer
+y <- as.vector(test$Obama)
+# Create matrix of predictions
+P <- matrix(cbind(gen_pred, edu_pred, rep_pred), nrow=2957, ncol=3)
+colnames(P) = c("gender", "education", "republican")
+myarray <- array(c(y, P))
+str(myarray)
+?array
